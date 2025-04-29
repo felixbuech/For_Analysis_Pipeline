@@ -6,7 +6,7 @@
 % 4. Compare actual and predicted update distributions
 
 % Number of random starting points for regression estimation
-n_sp = 5;
+n_sp = 100;
 rand_sp = true;
 
 % Identify parent directory of this config script
@@ -15,7 +15,7 @@ cd(parentDirectory)
 addpath(genpath(parentDirectory));
 
 % This is the BIDS folder
-bidsDir = strcat(parentDirectory, filesep, 'Leipzig', filesep, 'for_pilot_data', filesep, 'commonConfidence', filesep, 'for_bids_data');
+bidsDir = strcat(parentDirectory, filesep, 'Leipzig', filesep, 'for_pilot_data', filesep, 'helicopter', filesep, 'for_bids_data');
 
 % ----------------
 % 1. Preprocessing

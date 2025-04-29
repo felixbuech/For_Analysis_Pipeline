@@ -1,5 +1,5 @@
 % Identify parent directory of this config script
-parentDirectory = 'C:\Users\fb74loha\Desktop\For_Analysis_Clone\for_analysisPipeline'
+parentDirectory = 'C:\Users\fb74loha\Desktop\For_Analysis_Clone\for_analysisPipeline';
 cd(parentDirectory)
 addpath(genpath(parentDirectory));
 

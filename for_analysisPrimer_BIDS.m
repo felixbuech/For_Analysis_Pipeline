@@ -38,7 +38,7 @@ close all
 
 % Set BIDS directory where data are stored in BIDS format.
 parentDirectory = fileparts(mfilename('fullpath'));
-bidsDir = fullfile(parentDirectory, 'Leipzig_Behav_Pilot_Heli', 'for_bids_data');
+bidsDir = fullfile(parentDirectory, 'helicopter', 'for_bids_data');
 
 % List subject folders (assumed to be named like 'sub_01', 'sub_02', etc.)
 subFolders = dir(fullfile(bidsDir, 'sub_*'));
