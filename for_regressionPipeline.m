@@ -6,7 +6,7 @@
 % 4. Compare actual and predicted update distributions
 
 % Number of random starting points for regression estimation
-n_sp = 30;
+n_sp = 5;
 rand_sp = true;
 
 % Identify parent directory of this config script
@@ -15,7 +15,7 @@ cd(parentDirectory)
 addpath(genpath(parentDirectory));
 
 % This is the BIDS folder
-bidsDir = strcat(parentDirectory, filesep, 'for_data', filesep, 'for_bids_data');
+bidsDir = strcat(parentDirectory, filesep, 'Leipzig_Behav_Pilot_Heli', filesep, 'for_bids_data');
 
 % ----------------
 % 1. Preprocessing
@@ -155,3 +155,81 @@ for_plotRegUpdate(allSubBehavData,samples, ID)
 
 % All subjects
 for_plotRegUpdate(allSubBehavData,samples)
+
+
+
+%% Additional Plots
+
+
+
+% -------------------------------
+% Quickly check model variables
+% -------------------------------
+figure;
+subplot(3,1,1);
+subSel = allSubBehavData.ID == 12823;
+hold on;
+% Use cannon aim (mu_t) instead of distMean
+plot(allSubBehavData.mu_t(subSel), '--', 'color', 'r');
+% Use current outcome (x_t) instead of outcome
+plot(allSubBehavData.x_t(subSel), 'o', 'MarkerSize', 8, 'MarkerFaceColor', 'g', 'MarkerEdgeColor', 'k', 'LineWidth', 1);
+% Use current prediction (b_t) instead of pred
+plot(allSubBehavData.b_t(subSel), '-', 'color', 'b');
+% Use catch trials (v_t) instead of catchTrial
+plotCatch = allSubBehavData.v_t(subSel);
+plotCatch(plotCatch == 0) = nan;
+catchPred = allSubBehavData.mu_t(subSel);
+catchPred(isnan(plotCatch)) = nan;
+plot(catchPred, 'o', 'color', 'm');
+ylabel('Angle (deg)');
+xlabel('Trial');
+set(gca, 'box', 'off');
+
+subplot(3,1,2);
+plot(rad2deg(allSubBehavData.delta_t(subSel)), '-', 'color', 'r');
+xlabel('Trial');
+ylabel('Angle (deg)');
+set(gca, 'box', 'off');
+
+
+% -------------------------------
+% Summary plot regression results
+% -------------------------------
+% Extract beta weights for beta_0 to beta_5 from results.parameters
+betas = table2array(results.parameters(:, {'beta_0','beta_1','beta_2','beta_3','beta_4','beta_5'}));
+
+nSubj = size(betas, 1);
+nCoeffs = size(betas, 2);
+
+% Base x-positions for each coefficient (columns 1 to 6)
+xBase = repmat(1:nCoeffs, nSubj, 1);
+
+% Compute jitter offsets using smartJitter with reduced amplitude.
+% Here, we use amplitude 0.05 and range 0.1.
+xJit = smartJitter(betas, 0.05, 0.1);
+
+% Compute tentative x positions.
+xPositions = xBase + xJit;
+
+% Now restrict the xPositions for each coefficient to remain within [i-0.5, i+0.5]
+for i = 1:nCoeffs
+    lb = i - 0.5;
+    ub = i + 0.5;
+    xPositions(:, i) = min(max(xPositions(:, i), lb), ub);
+end
+
+figure;
+hold on;
+% Plot each subject's beta weights with jittered and clamped x-positions
+for i = 1:nCoeffs
+    scatter(xPositions(:, i), betas(:, i), 50, 'filled');
+end
+
+% Set the x-axis tick labels to the coefficient names.
+set(gca, 'XTick', 1:nCoeffs, 'XTickLabel', {'Int', 'PE', 'PE*RU', 'PE*CPP', 'PE*Hit', 'kappa*PE'});
+xlabel('Regression Coefficient');
+ylabel('Beta Weight');
+title('Scatter Plot of Beta Weights ');
+grid on;
+hold off;
+

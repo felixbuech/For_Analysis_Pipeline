@@ -5,7 +5,7 @@
 % 3. Plot estimated parameters
 
 % Number of random starting points for model estimation
-n_sp = 30;
+n_sp = 50;
 rand_sp = true;
 
 % Identify parent directory of this config script
@@ -14,7 +14,7 @@ cd(parentDirectory)
 addpath(genpath(parentDirectory));
 
 % This is the BIDS folder
-bidsDir = strcat(parentDirectory, filesep, 'for_data', filesep, 'for_bids_data');
+bidsDir = strcat(parentDirectory, filesep, 'Leipzig_Behav_Pilot_Heli', filesep, 'for_bids_data');
 
 % ----------------
 % 1. Preprocessing
@@ -68,3 +68,39 @@ whichParamsVec = struct2array(est_vars.which_vars);
 behavLabels = behavLabels(whichParamsVec);
 gridSize = [3,2];
 for_parameterSummary(results.parameters, behavLabels, gridSize)
+
+
+
+
+%--------------------------------
+% Quick MODEL (and Subject?) variable check plots
+%-----------------------------------
+figure
+subplot(3,1,1)
+subSel = allSubBehavData.ID == 99999;
+hold on
+plot(allSubBehavData.mu_t(subSel), '--', 'color', 'r')  % using mu_t for cannon aim
+plot(allSubBehavData.x_t(subSel), 'o', 'MarkerSize', 8, 'MarkerFaceColor', 'g', 'MarkerEdgeColor', 'k', 'LineWidth', 1)
+plot(allSubBehavData.b_t(subSel), '-', 'color', 'b')
+plot(allSubBehavData.a_t(subSel), 'o', 'color', 'y')
+plotCatch = allSubBehavData.v_t(subSel);
+plotCatch(plotCatch == 0) = nan;
+catchPred = allSubBehavData.mu_t(subSel);
+catchPred(isnan(plotCatch)) = nan;
+plot(catchPred, 'o', 'color', 'm')
+ylabel('Angle (deg)')
+xlabel('Trial')
+set(gca, 'box', 'off')
+
+subplot(3,1,2)
+plot(rad2deg(allSubBehavData.delta_t(subSel)), '-', 'color', 'r')
+xlabel('Trial')
+ylabel('Angle (deg)')
+set(gca, 'box', 'off')
+
+subplot(3,1,3)
+hold on
+plot(allSubBehavData.modSurp(subSel), '-', 'color', 'r')
+plot(allSubBehavData.modRU(subSel), '-', 'color', 'b')
+xlabel('Trial')
+set(gca, 'box', 'off')
