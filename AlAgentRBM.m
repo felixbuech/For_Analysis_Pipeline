@@ -16,6 +16,7 @@ classdef AlAgentRBM
         omega_t
         mu_t
         max_x
+        conf_t    % New: model confidence
 
         % Variables for belief updates
         a_t
@@ -41,6 +42,9 @@ classdef AlAgentRBM
             obj.omega_t = agent_vars.omega_0;
             obj.mu_t = agent_vars.mu_0;
             obj.max_x = agent_vars.max_x;
+
+             % Initialize model confidence
+            obj.conf_t = 1 - obj.tau_t;
 
             % Initialize variables
             obj.a_t = NaN;
@@ -113,6 +117,10 @@ classdef AlAgentRBM
 
             % Update relative uncertainty for the next trial
             obj.tau_t = obj.safe_div(obj.sigma_t_sq, (obj.sigma_t_sq + obj.sigma^2));
+
+            % Update model confidence
+            obj.conf_t = 1 - obj.tau_t;
+
 
         end
 

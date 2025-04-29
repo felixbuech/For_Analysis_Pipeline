@@ -112,11 +112,12 @@ for t = 1:n_trials-1
     end
 end
 
-% Save data
-df_data = table(mu, a_hat, delta, omega, tau, alpha, sigma_t_sq, ...
-    'VariableNames', {'mu_t', 'a_t_hat', 'delta_t', 'omega_t', 'tau_t',...
-    'alpha_t', 'sigma_t_sq'});
+confidence_model = 1 - tau;  % Model confidence = 1 - relative uncertainty
 
+
+df_data = table(mu, a_hat, delta, omega, tau, alpha, sigma_t_sq, confidence_model, ...
+    'VariableNames', {'mu_t', 'a_t_hat', 'delta_t', 'omega_t', 'tau_t',...
+    'alpha_t', 'sigma_t_sq', 'confidence_model'});
 if sim
     df_data.b_t = sim_b_t;
     df_data.a_t = sim_a_t;

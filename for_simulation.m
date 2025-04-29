@@ -25,15 +25,17 @@ true_params = NaN;
 % Cycle over subjects
 for i = 1:n_subj
 
-    % Select current subject
-    subsetIdx = allSubBehavData.ID == i;
+    % Get real subject ID
+    subjID = df_model.subj_num(i);
 
-    % Apply filtering to each field of the struct
+    % Select current subject's data from allSubBehavData
+    subsetIdx = allSubBehavData.ID == subjID;
     df_subj = structfun(@(x) x(subsetIdx, :), allSubBehavData, 'UniformOutput', false);
 
-    % Extract model parameters
-    sel_coeffs = df_model(df_model.subj_num == i, :);
+    % Extract model parameters for this subject
+    sel_coeffs = df_model(df_model.subj_num == subjID, :);
 
+    
     % Save parameters for parameter-recovery analysis
     if i == 1
         true_params = sel_coeffs;
