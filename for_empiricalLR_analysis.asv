@@ -247,3 +247,87 @@ grid on;
 xlim([-4 4]);
 ylim([0 1]); % set higher for very noisy data
 hold off;
+
+
+%% Run the RBM for LR analysis:
+
+% ----------------------------
+% Run RBM over actual data 
+% ----------------------------
+
+% Create dummy model with default params (or load real estimates)
+df_model = table();
+df_model.omikron_0 = repmat(100, n_subj, 1);
+df_model.omikron_1 = zeros(n_subj, 1);
+df_model.h = repmat(0.1, n_subj, 1);
+df_model.s = ones(n_subj, 1);
+df_model.u = zeros(n_subj, 1);
+df_model.sigma_H = repmat(0.01, n_subj, 1);
+df_model.subj_num = unique(allSubBehavData.ID);
+
+sim = false;
+plot_data = false;
+
+[~, df_modelOut] = for_simulation(allSubBehavData, df_model, n_subj, plot_data, sim);
+
+
+% ----------------------------
+% Add model learning rate analysis
+% ----------------------------
+
+modelLR = df_modelOut.alpha_t;
+c_t_model = allSubBehavData.c_t;
+
+periChangeLR_model = [];
+
+for i = 1:length(changeIdx)
+    idx = changeIdx(i);
+    
+    if idx - nBefore >= 1 && idx + nAfter <= nTrials
+        lrWindow = [learningRate(idx - nBefore + 1 : idx);
+            learningRate(idx + 1 : idx + nAfter)];
+        
+        periChangeLR_model = [periChangeLR_model; lrWindow'];
+    end
+end
+
+meanLR_model = mean(periChangeLR_model, 1, 'omitnan');
+semLR_model = std(periChangeLR_model, 0, 1, 'omitnan') ./ sqrt(sum(~isnan(periChangeLR_model), 1));
+
+validIdx_model = ~isnan(meanLR_model) & ~isnan(semLR_model);
+xAxis_model = xAxis(validIdx_model);
+meanLR_model_plot = meanLR_model(validIdx_model);
+semLR_model_plot = semLR_model(validIdx_model);
+
+
+%% ===== Create New Figure: Model vs. Empirical Learning Rate =====
+figure;
+hold on;
+
+% Empirical LR (blue)
+fill([xAxis_plot, fliplr(xAxis_plot)], ...
+     [meanLR_plot + semLR_plot, fliplr(meanLR_plot - semLR_plot)], ...
+     [0.7 0.7 1], 'FaceAlpha', 0.4, 'EdgeColor', 'none');
+plot(xAxis_plot, meanLR_plot, '-ob', 'LineWidth', 2, 'MarkerFaceColor', 'b');
+
+% Model LR (red)
+fill([xAxis_model, fliplr(xAxis_model)], ...
+     [meanLR_model_plot + semLR_model_plot, fliplr(meanLR_model_plot - semLR_model_plot)], ...
+     [1 0.7 0.7], 'FaceAlpha', 0.4, 'EdgeColor', 'none');
+plot(xAxis_model, meanLR_model_plot, '-or', 'LineWidth', 2, 'MarkerFaceColor', 'r');
+
+% Vertical line at change point
+xline(0, '--k', 'LineWidth', 1.5);
+
+% Labels and formatting
+xlabel('Trials Relative to Change Point');
+ylabel('Learning Rate');
+title('Empirical vs. Model Learning Rate Around Change Points');
+legend('Empirical ± SEM', 'Empirical Mean', 'Model ± SEM', 'Model Mean', 'Location', 'Best');
+grid on;
+xlim([-nBefore nAfter]);
+ylim([0 1]);
+hold off;
+
+
+
