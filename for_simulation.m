@@ -62,7 +62,7 @@ for i = 1:n_subj
     [~, df_data] = for_task_agent_int(df_subj, agent, agent_vars, sel_coeffs, sim);
 
     % Store results
-    df_data.ID = repmat(i, height(df_data), 1);
+    df_data.ID = repmat(subjID, height(df_data), 1);
     df_sim = [df_sim; df_data];
 
     % Extract estimation error

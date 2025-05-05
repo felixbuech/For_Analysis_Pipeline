@@ -5,7 +5,7 @@
 % 3. Plot estimated parameters
 
 % Number of random starting points for model estimation
-n_sp = 50;
+n_sp = 100;
 rand_sp = true;
 
 % Identify parent directory of this config script

@@ -12,10 +12,10 @@ addpath(genpath(parentDirectory));
 
 % Data directory
 grandparentDir = fileparts(parentDirectory);
-dataDir = strcat(grandparentDir, filesep, 'for_analysisPipeline', filesep, 'Leipzig', filesep, 'for_pilot_data', filesep, 'helicopter', filesep, 'raw_dataforBIDS');
+dataDir = strcat(grandparentDir, filesep, 'for_analysisPipeline', filesep, 'Leipzig', filesep, 'for_pilot_data', filesep, 'commonConfidence', filesep, 'raw_dataforBIDS');
 
 % This is the new BIDS folder
-bidsDir = strcat(parentDirectory, filesep, 'Leipzig', filesep, 'for_pilot_data', filesep, 'helicopter', filesep, 'for_bids_data');
+bidsDir = strcat(parentDirectory, filesep, 'Leipzig', filesep, 'for_pilot_data', filesep, 'commonConfidence', filesep, 'for_bids_data');
 
 % Check if we need a new directory
 if exist(bidsDir, 'dir') == false

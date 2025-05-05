@@ -221,7 +221,7 @@ classdef ForRegression
 
                 % Logical index for ID
                 ID      = subjectIDs(i);
-                indices = (allSubBehavData.ID == ID);
++indices = (allSubBehavData.ID == ID);
 
                 % Extract subset for fields dynamically
                 subBehavData = structfun(@(x) x(indices), allSubBehavData, 'UniformOutput', false);

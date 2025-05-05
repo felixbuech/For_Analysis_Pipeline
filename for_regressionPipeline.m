@@ -15,7 +15,7 @@ cd(parentDirectory)
 addpath(genpath(parentDirectory));
 
 % This is the BIDS folder
-bidsDir = strcat(parentDirectory, filesep, 'Leipzig', filesep, 'for_pilot_data', filesep, 'commonConfidence', filesep, 'for_bids_data');
+bidsDir = strcat(parentDirectory, filesep, 'Leipzig', filesep, 'for_pilot_data', filesep, 'helicopter', filesep, 'for_bids_data');
 
 % ----------------
 % 1. Preprocessing
@@ -25,7 +25,8 @@ bidsDir = strcat(parentDirectory, filesep, 'Leipzig', filesep, 'for_pilot_data',
 allSubBehavData = for_preprocessing(bidsDir);
 
 % Number of subjects
-n_subj = length(unique(allSubBehavData.ID));
+allIDs = unique(allSubBehavData.ID);        
+n_subj = numel(allIDs);                     
 
 % -------------------------------------------
 % 2. Run reduced Bayesian model over the data
@@ -39,7 +40,7 @@ df_model.h = repmat(0.1, n_subj, 1);
 df_model.s = ones(n_subj, 1);
 df_model.u = zeros(n_subj, 1);
 df_model.sigma_H = repmat(0.01, n_subj, 1);
-df_model.subj_num = (1:n_subj)';
+df_model.subj_num = allIDs;
 
 sim = false; % don't generate predictions
 plot_data = false; % no plotting for now
@@ -137,7 +138,8 @@ if reg_vars.which_vars.omikron_1
     df_params.omikron_1 = results.parameters.omikron_1;
 end
 
-df_params.subj_num = (1:n_subj)';
+df_params.subj_num = allIDs;
+df_params.ID = allIDs;
 
 % Sample updates from regression model
 n_trials = 400;
@@ -150,7 +152,7 @@ samplesStruct = table2struct(samples, 'ToScalar', true);
 % ------------------------------------
 
 % Example subject
-ID = 1;
+ID = allIDs(1);
 for_plotRegUpdate(allSubBehavData,samples, ID)
 
 % All subjects
@@ -158,78 +160,78 @@ for_plotRegUpdate(allSubBehavData,samples)
 
 
 
-%% Additional Plots
-
-
-
-% -------------------------------
-% Quickly check model variables
-% -------------------------------
-figure;
-subplot(3,1,1);
-subSel = allSubBehavData.ID == 12823;
-hold on;
-% Use cannon aim (mu_t) instead of distMean
-plot(allSubBehavData.mu_t(subSel), '--', 'color', 'r');
-% Use current outcome (x_t) instead of outcome
-plot(allSubBehavData.x_t(subSel), 'o', 'MarkerSize', 8, 'MarkerFaceColor', 'g', 'MarkerEdgeColor', 'k', 'LineWidth', 1);
-% Use current prediction (b_t) instead of pred
-plot(allSubBehavData.b_t(subSel), '-', 'color', 'b');
-% Use catch trials (v_t) instead of catchTrial
-plotCatch = allSubBehavData.v_t(subSel);
-plotCatch(plotCatch == 0) = nan;
-catchPred = allSubBehavData.mu_t(subSel);
-catchPred(isnan(plotCatch)) = nan;
-plot(catchPred, 'o', 'color', 'm');
-ylabel('Angle (deg)');
-xlabel('Trial');
-set(gca, 'box', 'off');
-
-subplot(3,1,2);
-plot(rad2deg(allSubBehavData.delta_t(subSel)), '-', 'color', 'r');
-xlabel('Trial');
-ylabel('Angle (deg)');
-set(gca, 'box', 'off');
-
-
-% -------------------------------
-% Summary plot regression results
-% -------------------------------
-% Extract beta weights for beta_0 to beta_5 from results.parameters
-betas = table2array(results.parameters(:, {'beta_0','beta_1','beta_2','beta_3','beta_4','beta_5'}));
-
-nSubj = size(betas, 1);
-nCoeffs = size(betas, 2);
-
-% Base x-positions for each coefficient (columns 1 to 6)
-xBase = repmat(1:nCoeffs, nSubj, 1);
-
-% Compute jitter offsets using smartJitter with reduced amplitude.
-% Here, we use amplitude 0.05 and range 0.1.
-xJit = smartJitter(betas, 0.05, 0.1);
-
-% Compute tentative x positions.
-xPositions = xBase + xJit;
-
-% Now restrict the xPositions for each coefficient to remain within [i-0.5, i+0.5]
-for i = 1:nCoeffs
-    lb = i - 0.5;
-    ub = i + 0.5;
-    xPositions(:, i) = min(max(xPositions(:, i), lb), ub);
-end
-
-figure;
-hold on;
-% Plot each subject's beta weights with jittered and clamped x-positions
-for i = 1:nCoeffs
-    scatter(xPositions(:, i), betas(:, i), 50, 'filled');
-end
-
-% Set the x-axis tick labels to the coefficient names.
-set(gca, 'XTick', 1:nCoeffs, 'XTickLabel', {'Int', 'PE', 'PE*RU', 'PE*CPP', 'PE*Hit', 'kappa*PE'});
-xlabel('Regression Coefficient');
-ylabel('Beta Weight');
-title('Scatter Plot of Beta Weights ');
-grid on;
-hold off;
-
+% %% Additional Plots
+% 
+% 
+% 
+% % -------------------------------
+% % Quickly check model variables
+% % -------------------------------
+% figure;
+% subplot(3,1,1);
+% subSel = allSubBehavData.ID == 12823;
+% hold on;
+% % Use cannon aim (mu_t) instead of distMean
+% plot(allSubBehavData.mu_t(subSel), '--', 'color', 'r');
+% % Use current outcome (x_t) instead of outcome
+% plot(allSubBehavData.x_t(subSel), 'o', 'MarkerSize', 8, 'MarkerFaceColor', 'g', 'MarkerEdgeColor', 'k', 'LineWidth', 1);
+% % Use current prediction (b_t) instead of pred
+% plot(allSubBehavData.b_t(subSel), '-', 'color', 'b');
+% % Use catch trials (v_t) instead of catchTrial
+% plotCatch = allSubBehavData.v_t(subSel);
+% plotCatch(plotCatch == 0) = nan;
+% catchPred = allSubBehavData.mu_t(subSel);
+% catchPred(isnan(plotCatch)) = nan;
+% plot(catchPred, 'o', 'color', 'm');
+% ylabel('Angle (deg)');
+% xlabel('Trial');
+% set(gca, 'box', 'off');
+% 
+% subplot(3,1,2);
+% plot(rad2deg(allSubBehavData.delta_t(subSel)), '-', 'color', 'r');
+% xlabel('Trial');
+% ylabel('Angle (deg)');
+% set(gca, 'box', 'off');
+% 
+% 
+% % -------------------------------
+% % Summary plot regression results
+% % -------------------------------
+% % Extract beta weights for beta_0 to beta_5 from results.parameters
+% betas = table2array(results.parameters(:, {'beta_0','beta_1','beta_2','beta_3','beta_4','beta_5'}));
+% 
+% nSubj = size(betas, 1);
+% nCoeffs = size(betas, 2);
+% 
+% % Base x-positions for each coefficient (columns 1 to 6)
+% xBase = repmat(1:nCoeffs, nSubj, 1);
+% 
+% % Compute jitter offsets using smartJitter with reduced amplitude.
+% % Here, we use amplitude 0.05 and range 0.1.
+% xJit = smartJitter(betas, 0.05, 0.1);
+% 
+% % Compute tentative x positions.
+% xPositions = xBase + xJit;
+% 
+% % Now restrict the xPositions for each coefficient to remain within [i-0.5, i+0.5]
+% for i = 1:nCoeffs
+%     lb = i - 0.5;
+%     ub = i + 0.5;
+%     xPositions(:, i) = min(max(xPositions(:, i), lb), ub);
+% end
+% 
+% figure;
+% hold on;
+% % Plot each subject's beta weights with jittered and clamped x-positions
+% for i = 1:nCoeffs
+%     scatter(xPositions(:, i), betas(:, i), 50, 'filled');
+% end
+% 
+% % Set the x-axis tick labels to the coefficient names.
+% set(gca, 'XTick', 1:nCoeffs, 'XTickLabel', {'Int', 'PE', 'PE*RU', 'PE*CPP', 'PE*Hit', 'kappa*PE'});
+% xlabel('Regression Coefficient');
+% ylabel('Beta Weight');
+% title('Scatter Plot of Beta Weights ');
+% grid on;
+% hold off;
+% 

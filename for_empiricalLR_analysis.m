@@ -5,7 +5,7 @@ cd(parentDirectory)
 addpath(genpath(parentDirectory));
 
 % This is the BIDS folder
-bidsDir = strcat(parentDirectory, filesep, 'Leipzig', filesep, 'for_pilot_data', filesep, 'commonConfidence', filesep, 'for_bids_data');
+bidsDir = strcat(parentDirectory, filesep, 'Leipzig', filesep, 'for_pilot_data', filesep, 'helicopter', filesep, 'for_bids_data');
 
 % 1. Preprocessing
 % ----------------
